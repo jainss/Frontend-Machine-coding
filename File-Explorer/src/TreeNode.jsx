@@ -38,8 +38,10 @@ function fetchFolderContents(folderId) {
     });
 }
 
-export default function TreeNode({ node, level, onAdd, onDelete }) {
+export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selectedIds}) {
     const isFolder = node.type === "folder";
+    const isSelected = selectedIds.has(node.id);
+
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [children, setChildren] = useState(node.children);
@@ -85,6 +87,11 @@ export default function TreeNode({ node, level, onAdd, onDelete }) {
         onDelete(node.id);
     }
 
+    function handleSelectClick(e) {
+        e.stopPropagation();
+        onSelect(node.id, e.ctrlKey || e.metaKey);
+      }
+
     return (
         <div>
             <div
@@ -92,8 +99,10 @@ export default function TreeNode({ node, level, onAdd, onDelete }) {
                     paddingLeft: level * 16,
                     cursor: isFolder ? "pointer" : "default",
                     userSelect: "none",
+                    background: isSelected ? "#cce5ff" : "transparent",
                 }}
-                onClick={handleToggle}>
+                onClick={handleToggle}
+                onDoubleClick={handleSelectClick}>
                 {isFolder ? (isOpen ? "📂" : "📁") : "📄"} {node.name}
 
                 {node.id !== "root" && (
@@ -114,7 +123,7 @@ export default function TreeNode({ node, level, onAdd, onDelete }) {
             {isFolder &&
                 isOpen &&
                 children?.map((child) => {
-                    return <TreeNode key={child.id} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete} />
+                    return <TreeNode key={child.id} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete} onSelect={onSelect} selectedIds={selectedIds}/>
                 })}
         </div>
     );
