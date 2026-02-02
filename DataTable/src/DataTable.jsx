@@ -12,7 +12,35 @@ function getSortedData(data, sortConfig) {
     })
 }
 
-export default function DataTable({ columns, data }) {
+export default function DataTable({ columns, data, isLoading = false, error = null, }) {
+
+    /* ---------- ERROR STATE ---------- */
+    if (error) {
+        return (
+          <div style={{ padding: 20, color: "red" }}>
+            ❌ Error: {error}
+          </div>
+        );
+      }
+    
+      /* ---------- LOADING STATE ---------- */
+      if (isLoading) {
+        return (
+          <div style={{ padding: 20 }}>
+            ⏳ Loading data...
+          </div>
+        );
+      }
+    
+      /* ---------- EMPTY STATE ---------- */
+      if (!data || data.length === 0) {
+        return (
+          <div style={{ padding: 20 }}>
+            📭 No data available
+          </div>
+        );
+      }
+    
     const [sortConfig, setSortConfig] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRowIds, setSelectedRowIds] = useState(new Set());
@@ -89,7 +117,7 @@ export default function DataTable({ columns, data }) {
                             }}>
                             {columns.map((col) => {
                                 return <td key={col.key}>
-                                    {row[col.key]}
+                                    {col.render?col.render(row[col.key], row):row[col.key]}
                                 </td>
                             })}
                         </tr>
