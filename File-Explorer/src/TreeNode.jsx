@@ -19,16 +19,50 @@ function addNode(tree, parentId, newNode) {
     }
 }
 
+function fetchFolderContents(folderId) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                {
+                    id: folderId + "-file1",
+                    name: "index.js",
+                    type: "file",
+                },
+                {
+                    id: folderId + "-file2",
+                    name: "App.js",
+                    type: "file",
+                },
+            ]);
+        }, 800);
+    });
+}
+
 export default function TreeNode({ node, level, onAdd, onDelete }) {
     const isFolder = node.type === "folder";
+    const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [children, setChildren] = useState(node.children);
 
-    function handleClick() {
-        if (!isFolder) {
-            return;
+    async function handleToggle() {
+        if (!isFolder) return;
+      
+        if (!isOpen && children === null) {
+          setIsLoading(true);
+          try {
+            const data = await fetchFolderContents(node.id);
+            setChildren(data);
+          } catch (e) {
+            console.error("Error loading folder", e);
+            setChildren([]);
+          } finally {
+            setIsLoading(false);
+          }
         }
+      
         setIsOpen(prev => !prev);
-    }
+      }
+      
 
     function handleAdd(type) {
         const name = prompt(`Enter ${type} name:`);
@@ -46,9 +80,9 @@ export default function TreeNode({ node, level, onAdd, onDelete }) {
         setIsOpen(true);
     }
 
-    function handleDelete(e){
-       e.stopPropagation();
-       onDelete(node.id);
+    function handleDelete(e) {
+        e.stopPropagation();
+        onDelete(node.id);
     }
 
     return (
@@ -59,25 +93,28 @@ export default function TreeNode({ node, level, onAdd, onDelete }) {
                     cursor: isFolder ? "pointer" : "default",
                     userSelect: "none",
                 }}
-                onClick={handleClick}>
+                onClick={handleToggle}>
                 {isFolder ? (isOpen ? "📂" : "📁") : "📄"} {node.name}
-                
+
                 {node.id !== "root" && (
                     <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={handleDelete}>🗑️</button>
                 )}
 
                 {isFolder && (
                     <>
-                        <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => handleAdd("file")}>➕📄</button>
+                        <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => { e.stopPropagation(); handleAdd("file")}}>➕📄</button>
                         <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => handleAdd("folder")}>➕📁</button>
                     </>
                 )}
+
+                {isLoading && <span>⏳</span>}
+
             </div>
 
             {isFolder &&
                 isOpen &&
-                node.children?.map((child) => {
-                    return <TreeNode key={child.id} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete}/>
+                children?.map((child) => {
+                    return <TreeNode key={child.id} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete} />
                 })}
         </div>
     );
