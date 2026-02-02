@@ -37,7 +37,7 @@ export default function FileExplorer({ data }) {
 
     return (
         <div style={{ fontFamily: "monospace", fontSize: 14 }}>
-            <TreeNode node={tree} level={0} onAdd={setTree} onDelete={handleDelete} onSelect={handleSelect} selectedIds={selectedIds}/>
+            <TreeNode node={tree} level={0} onAdd={setTree} onDelete={handleDelete} onSelect={handleSelect} selectedIds={selectedIds} />
         </div>
     );
 }

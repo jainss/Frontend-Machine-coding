@@ -19,6 +19,11 @@ const fileTree = {
       id: "package",
       name: "package.json",
       type: "file"
+    },
+    {
+      id: "package",
+      name: "package.jsx",
+      type: "file"
     }
   ]
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import getIcon from "./getIcon";
 
 function addNode(tree, parentId, newNode) {
     if (tree.id === parentId && tree.type === "folder") {
@@ -25,12 +26,22 @@ function fetchFolderContents(folderId) {
             resolve([
                 {
                     id: folderId + "-file1",
-                    name: "index.js",
+                    name: "index.ts",
                     type: "file",
                 },
                 {
                     id: folderId + "-file2",
-                    name: "App.js",
+                    name: "App.jsx",
+                    type: "file",
+                },
+                {
+                    id: folderId + "-file3",
+                    name: "index.html",
+                    type: "file",
+                },
+                {
+                    id: folderId + "-file4",
+                    name: "style.css",
                     type: "file",
                 },
             ]);
@@ -38,7 +49,7 @@ function fetchFolderContents(folderId) {
     });
 }
 
-export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selectedIds}) {
+export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selectedIds }) {
     const isFolder = node.type === "folder";
     const isSelected = selectedIds.has(node.id);
 
@@ -48,23 +59,23 @@ export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selec
 
     async function handleToggle() {
         if (!isFolder) return;
-      
+
         if (!isOpen && children === null) {
-          setIsLoading(true);
-          try {
-            const data = await fetchFolderContents(node.id);
-            setChildren(data);
-          } catch (e) {
-            console.error("Error loading folder", e);
-            setChildren([]);
-          } finally {
-            setIsLoading(false);
-          }
+            setIsLoading(true);
+            try {
+                const data = await fetchFolderContents(node.id);
+                setChildren(data);
+            } catch (e) {
+                console.error("Error loading folder", e);
+                setChildren([]);
+            } finally {
+                setIsLoading(false);
+            }
         }
-      
+
         setIsOpen(prev => !prev);
-      }
-      
+    }
+
 
     function handleAdd(type) {
         const name = prompt(`Enter ${type} name:`);
@@ -90,7 +101,7 @@ export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selec
     function handleSelectClick(e) {
         e.stopPropagation();
         onSelect(node.id, e.ctrlKey || e.metaKey);
-      }
+    }
 
     return (
         <div>
@@ -103,7 +114,7 @@ export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selec
                 }}
                 onClick={handleToggle}
                 onDoubleClick={handleSelectClick}>
-                {isFolder ? (isOpen ? "📂" : "📁") : "📄"} {node.name}
+                {getIcon(node, isOpen)} {node.name}
 
                 {node.id !== "root" && (
                     <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={handleDelete}>🗑️</button>
@@ -111,7 +122,7 @@ export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selec
 
                 {isFolder && (
                     <>
-                        <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => { e.stopPropagation(); handleAdd("file")}}>➕📄</button>
+                        <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => { e.stopPropagation(); handleAdd("file") }}>➕📄</button>
                         <button style={{ fontSize: "10px", marginLeft: "10px", borderRadius: "5px" }} onClick={() => handleAdd("folder")}>➕📁</button>
                     </>
                 )}
@@ -122,8 +133,8 @@ export default function TreeNode({ node, level, onAdd, onDelete, onSelect, selec
 
             {isFolder &&
                 isOpen &&
-                children?.map((child) => {
-                    return <TreeNode key={child.id} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete} onSelect={onSelect} selectedIds={selectedIds}/>
+                children?.map((child, index) => {
+                    return <TreeNode key={index} node={child} level={level + 1} onAdd={onAdd} onDelete={onDelete} onSelect={onSelect} selectedIds={selectedIds} />
                 })}
         </div>
     );
