@@ -6,6 +6,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
 
   const columns = [
     { key: "id", label: "ID" },
@@ -39,8 +40,8 @@ function App() {
       )
     }
   ];
-  useEffect(()=>{
-    setTimeout(()=>{
+  useEffect(() => {
+    setTimeout(() => {
       setData([
         { id: 1, name: "Alice", age: 24, role: "Engineer" },
         { id: 2, name: "Bob", age: 30, role: "Designer" },
@@ -61,8 +62,17 @@ function App() {
   return (
     <div>
       <h3>Reuseable DataTable</h3>
-      <DataTable columns={columns} data={data} isLoading={isLoading}
-        error={error}/>
+      <DataTable
+      columns={columns}
+      data={data}
+      pagination={{
+        page,
+        pageSize: 5,
+        total: data.length,
+        mode: "client",
+      }}
+      onPageChange={setPage}
+    />
     </div>
   )
 }

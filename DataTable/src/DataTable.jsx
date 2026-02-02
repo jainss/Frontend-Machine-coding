@@ -1,145 +1,163 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
+/* ---------- SORT HELPER ---------- */
 function getSortedData(data, sortConfig) {
-    if (!sortConfig) return data;
+  if (!sortConfig) return data;
 
-    const { key, direction } = sortConfig;
+  const { key, direction } = sortConfig;
 
-    return [...data].sort((a, b) => {
-        if (a[key] > b[key]) return direction === 'asc' ? -1 : 1;
-        if (a[key] < b[key]) return direction === 'asc' ? 1 : -1;
-        return 0;
-    })
+  return [...data].sort((a, b) => {
+    if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+    if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
 }
 
-export default function DataTable({ columns, data, isLoading = false, error = null, }) {
+export default function DataTable({
+  columns,
+  data,
+  pagination,
+  onPageChange,
+  isLoading = false,
+  error = null,
+}) {
+  const { page, pageSize, total, mode } = pagination;
 
-    /* ---------- ERROR STATE ---------- */
-    if (error) {
-        return (
-          <div style={{ padding: 20, color: "red" }}>
-            ❌ Error: {error}
-          </div>
-        );
+  /* ---------- STATES ---------- */
+  const [sortConfig, setSortConfig] = useState(null);
+  const [selectedRowIds, setSelectedRowIds] = useState(new Set());
+
+  /* ---------- ERROR ---------- */
+  if (error) {
+    return <div style={{ padding: 20, color: "red" }}>❌ {error}</div>;
+  }
+
+  /* ---------- LOADING ---------- */
+  if (isLoading) {
+    return <div style={{ padding: 20 }}>⏳ Loading...</div>;
+  }
+
+  /* ---------- EMPTY ---------- */
+  if (!data || data.length === 0) {
+    return <div style={{ padding: 20 }}>📭 No data available</div>;
+  }
+
+  /* ---------- SORT ---------- */
+  const sortedData = useMemo(() => {
+    return mode === "client"
+      ? getSortedData(data, sortConfig)
+      : data;
+  }, [data, sortConfig, mode]);
+
+  /* ---------- PAGINATION ---------- */
+  const totalPages = Math.ceil(total / pageSize);
+
+  const paginatedData =
+    mode === "client"
+      ? sortedData.slice(
+          (page - 1) * pageSize,
+          page * pageSize
+        )
+      : sortedData;
+
+  /* ---------- SORT HANDLER ---------- */
+  function handleSort(col) {
+    if (!col.sortable) return;
+
+    setSortConfig((prev) => {
+      if (prev?.key === col.key) {
+        return {
+          key: col.key,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
       }
-    
-      /* ---------- LOADING STATE ---------- */
-      if (isLoading) {
-        return (
-          <div style={{ padding: 20 }}>
-            ⏳ Loading data...
-          </div>
-        );
-      }
-    
-      /* ---------- EMPTY STATE ---------- */
-      if (!data || data.length === 0) {
-        return (
-          <div style={{ padding: 20 }}>
-            📭 No data available
-          </div>
-        );
-      }
-    
-    const [sortConfig, setSortConfig] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [selectedRowIds, setSelectedRowIds] = useState(new Set());
+      return { key: col.key, direction: "asc" };
+    });
 
-    const pageSize = 3;
+    onPageChange?.(1);
+  }
 
-    const sortedData = getSortedData(data, sortConfig);
+  /* ---------- ROW SELECT ---------- */
+  function handleRowClick(rowId, e) {
+    const isMulti = e.ctrlKey || e.metaKey;
 
-    const totalPages = Math.ceil(sortedData.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedData = sortedData.slice(
-        startIndex,
-        startIndex + pageSize
-    );
+    setSelectedRowIds((prev) => {
+      const next = new Set(prev);
+      isMulti
+        ? next.has(rowId)
+          ? next.delete(rowId)
+          : next.add(rowId)
+        : (next.clear(), next.add(rowId));
+      return next;
+    });
+  }
 
-    function handleRowClick(rowId, event){
-        const isMulti = event.ctrlKey || event.metaKey;
+  return (
+    <div>
+      <table border="1" cellPadding="8" cellSpacing="0">
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                onClick={() => handleSort(col)}
+                style={{
+                  cursor: col.sortable ? "pointer" : "default",
+                  userSelect: "none",
+                }}
+              >
+                {col.label}
+                {sortConfig?.key === col.key &&
+                  (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-        setSelectedRowIds((prev)=>{
-            const next= new Set(prev);
+        <tbody>
+          {paginatedData.map((row) => (
+            <tr
+              key={row.id}
+              onClick={(e) => handleRowClick(row.id, e)}
+              style={{
+                background: selectedRowIds.has(row.id)
+                  ? "#cce5ff"
+                  : "transparent",
+                cursor: "pointer",
+              }}
+            >
+              {columns.map((col) => (
+                <td key={col.key}>
+                  {col.render
+                    ? col.render(row[col.key], row)
+                    : row[col.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-            if(isMulti){
-                next.has(rowId)? next.delete(rowId):next.add(rowId);
-            }else{
-                next.clear();
-                next.add(rowId);
-            }
+      {/* Pagination Controls */}
+      <div style={{ marginTop: 10 }}>
+        <button
+          disabled={page === 1}
+          onClick={() => onPageChange(page - 1)}
+        >
+          Prev
+        </button>
 
-            return next;
-        })
-    }
+        <span style={{ margin: "0 10px" }}>
+          Page {page} of {totalPages}
+        </span>
 
-    function handleSort(col) {
-        if (!col.sortable) return;
-
-        setSortConfig(prev => {
-            if (prev && prev.key === col.key) {
-                return {
-                    key: col.key,
-                    direction: prev.direction === "asc" ? "desc" : "asc",
-                };
-            }
-            return { key: col.key, direction: "asc" };
-        });
-
-        setCurrentPage(1); // 🔑 reset page
-    }
-    return (
-        <div>
-            <table border="1" cellPadding="0">
-                <thead>
-                    <tr>
-                        {columns.map((col) => (
-                            <th
-                                key={col.key}
-                                onClick={() => handleSort(col)}
-                                style={{
-                                    cursor: col.sortable ? "pointer" : "default",
-                                    userSelect: "none",
-                                }}>
-                                {col.label}
-                                {sortConfig?.key == col.key && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {paginatedData.map((row) => {
-                        return <tr
-                            key={row.id}
-                            onClick={(e) => handleRowClick(row.id, e)} style={{
-                                background: selectedRowIds.has(row.id)? "#cce5ff": "transparent",
-                                cursor: "pointer",
-                            }}>
-                            {columns.map((col) => {
-                                return <td key={col.key}>
-                                    {col.render?col.render(row[col.key], row):row[col.key]}
-                                </td>
-                            })}
-                        </tr>
-                    })}
-                </tbody>
-            </table>
-
-            {/* Pagination UI  */}
-            <div style={{ marginTop: "10px" }}>
-                <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                    disabled={currentPage === 1}>
-                    Prev
-                </button>
-                <span style={{ margin: "0 10px" }}>
-                    Page {currentPage} of {totalPages}
-                </span>
-                <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                    disabled={currentPage == totalPages}>
-                    Next
-                </button>
-            </div>
-        </div>
-
-    )
+        <button
+          disabled={page === totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
 }
