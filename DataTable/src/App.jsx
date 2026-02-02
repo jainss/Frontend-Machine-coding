@@ -63,16 +63,26 @@ function App() {
     <div>
       <h3>Reuseable DataTable</h3>
       <DataTable
-      columns={columns}
-      data={data}
-      pagination={{
-        page,
-        pageSize: 5,
-        total: data.length,
-        mode: "client",
-      }}
-      onPageChange={setPage}
-    />
+        columns={columns}
+        data={data}
+        pagination={{
+          page,
+          pageSize: 5,
+          total: data.length,
+          mode: "client",
+        }}
+        onPageChange={(p) => {
+          console.log("Page changed:", p);
+          setPage(p);
+        }}
+        onSortChange={(sort) => {
+          console.log("Sort changed:", sort);
+        }}
+        onRowClick={(row, selectedRows) => {
+          console.log("Row clicked:", row);
+          console.log("Selected rows:", selectedRows);
+        }}
+      />
     </div>
   )
 }
