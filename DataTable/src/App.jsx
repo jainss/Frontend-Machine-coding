@@ -16,6 +16,11 @@ function App() {
     { id: 4, name: "Aalind", age: 38, role: "Engineer" },
     { id: 3, name: "Charlie", age: 28, role: "Manager" },
     { id: 5, name: "David", age: 35, role: "Engineer" },
+    { id: 6, name: "Sahil", age: 24, role: "Engineer" },
+    { id: 7, name: "Aman", age: 30, role: "Designer" },
+    { id: 8, name: "Usha", age: 30, role: "Engineer" },
+    { id: 9, name: "Devil", age: 28, role: "Manager" },
+    { id: 10, name: "Dev", age: 68, role: "Engineer" },
   ];
 
   return (
