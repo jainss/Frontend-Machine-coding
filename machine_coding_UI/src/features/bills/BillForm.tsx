@@ -22,6 +22,14 @@ const BillForm = ({ existing, close }: BillFormProps) => {
   const [selectedFriends, setSelectedFriends] = useState<string[]>(
     existing?.friendIds || []
   );
+  const toggleFriend = (id: string) => {
+    setSelectedFriends(prev =>
+      prev.includes(id)
+        ? prev.filter(friendId => friendId !== id)
+        : [...prev, id]
+    );
+  };
+  
 
   // Handle multi-select change
   const handleFriendsChange = (
@@ -87,7 +95,7 @@ const BillForm = ({ existing, close }: BillFormProps) => {
       </div>
 
      {/* Friends */}
-     <div className="form-group">
+      <div className="form-group">
         <label>Friends</label>
         <div className="friends-checkbox-grid">
           {friends.map(f => (
