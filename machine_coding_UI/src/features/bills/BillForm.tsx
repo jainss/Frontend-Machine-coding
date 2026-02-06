@@ -95,21 +95,23 @@ const BillForm = ({ existing, close }: BillFormProps) => {
       </div>
 
      {/* Friends */}
-      <div className="form-group">
-        <label>Friends</label>
-        <div className="friends-checkbox-grid">
-          {friends.map(f => (
-            <label key={f.id} className="checkbox-item">
-              <input
-                type="checkbox"
-                checked={selectedFriends.includes(f.id)}
-                onChange={() => toggleFriend(f.id)}
-              />
-              {f.name}
-            </label>
-          ))}
-        </div>
-      </div>
+     <div className="form-group">
+  <label className="section-label">Friends</label>
+
+  <div className="friends-checkbox-grid">
+    {friends.map(f => (
+      <label key={f.id} className="checkbox-item">
+        <input
+          type="checkbox"
+          checked={selectedFriends.includes(f.id)}
+          onChange={() => toggleFriend(f.id)}
+        />
+        <span>{f.name}</span>
+      </label>
+    ))}
+  </div>
+</div>
+
 
       {/* Actions */}
       <div className="modal-actions">
