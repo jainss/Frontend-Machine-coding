@@ -1,0 +1,40 @@
+.bills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bill-table {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.bill-head,
+.bill-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr 1fr;
+  padding: 16px 20px;
+  align-items: center;
+}
+
+.bill-head {
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+}
+
+.bill-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bill-row:last-child {
+  border-bottom: none;
+}
+
+.bill-row button {
+  background: none;
+  border: none;
+  font-size: 16px;
+}
