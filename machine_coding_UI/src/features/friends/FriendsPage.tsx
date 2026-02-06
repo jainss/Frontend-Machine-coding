@@ -8,30 +8,44 @@ import './friends.css';
 const FriendsPage = () => {
   const friends = useAppSelector(s => s.friends);
   const dispatch = useAppDispatch();
+
   const [editing, setEditing] = useState<any>(null);
+  const [search, setSearch] = useState('');
+
+  // ✅ SEARCH FILTER
+  const filteredFriends = friends.filter(f =>
+    f.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="friends-page">
       {/* Header */}
       <div className="friends-header">
         <h1>Friends</h1>
-        <button className="primary-pill" onClick={() => setEditing({})}>
+        <button className="primary-btn" onClick={() => setEditing({})}>
           + Add New Friend
         </button>
       </div>
 
       {/* Search */}
-      <input className="search" placeholder="Search friends..." />
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search friends..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
 
       {/* Cards */}
       <div className="friends-grid">
-        {friends.map(f => (
+        {filteredFriends.map(f => (
           <div key={f.id} className="friend-card">
-            <div className="friend-left">
-              <div className="avatar">{f.name[0]}</div>
+            <div className="left">
+              <div className="avatar">{f.name[0].toUpperCase()}</div>
               <div>
-                <strong>{f.name}</strong>
-                <p>Friend</p>
+                <div className="name">{f.name}</div>
+                <div className="sub">Friend</div>
               </div>
             </div>
 
@@ -43,6 +57,7 @@ const FriendsPage = () => {
         ))}
       </div>
 
+      {/* Modal */}
       <Modal
         isOpen={!!editing}
         title={editing?.id ? 'Edit Friend' : 'Add Friend'}

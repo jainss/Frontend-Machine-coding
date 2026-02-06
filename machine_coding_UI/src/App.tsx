@@ -8,21 +8,21 @@ import BillsPage from './features/bills/BillsPage';
 import Sidebar from './components/Sidebar';
 
 function App() {
-  const [page, setPage] = useState<'friends' | 'bills'>('friends');
-  const dispatch = useAppDispatch();
+  const [pages, setPages] = useState<'friends' | 'bills'>('friends');
+  const dispatchers = useAppDispatch();
 
   useEffect(() => {
     fetchInitialData().then(data => {
-      dispatch(setFriends(data.friends || []));
-      dispatch(setBills(data.bills || []));
+      dispatchers(setFriends(data.friends || []));
+      dispatchers(setBills(data.bills || []));
     });
   }, []);
 
   return (
     <div className="app-layout">
-      <Sidebar page={page} setPage={setPage} />
+      <Sidebar pages={pages} setPages={setPages} />
       <main className="content">
-        {page === 'friends' ? <FriendsPage /> : <BillsPage />}
+        {pages === 'friends' ? <FriendsPage /> : <BillsPage />}
       </main>
     </div>
   );

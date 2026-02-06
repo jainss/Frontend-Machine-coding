@@ -2,50 +2,117 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { addBill, editBill } from './billsSlice';
 
-const BillForm = ({ existing, close }: any) => {
-  const friends = useAppSelector(s => s.friends);
+interface BillFormProps {
+  existing?: any;
+  close: () => void;
+}
+
+const BillForm = ({ existing, close }: BillFormProps) => {
   const dispatch = useAppDispatch();
+  const friends = useAppSelector(state => state.friends);
 
-  const [desc, setDesc] = useState(existing?.description || '');
-  const [amount, setAmount] = useState(existing?.amount || 0);
-  const [ids, setIds] = useState<string[]>(existing?.friendIds || []);
+  const [description, setDescription] = useState(
+    existing?.description || ''
+  );
 
-  const toggle = (id: string) =>
-    setIds(p => (p.includes(id) ? p.filter(x => x !== id) : [...p, id]));
+  const [amount, setAmount] = useState(
+    existing?.amount ? String(existing.amount) : ''
+  );
 
-  const split = Number((amount / ids.length).toFixed(2));
+  const [selectedFriends, setSelectedFriends] = useState<string[]>(
+    existing?.friendIds || []
+  );
 
-  const save = () => {
+  // Handle multi-select change
+  const handleFriendsChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const values = Array.from(
+      e.target.selectedOptions,
+      option => option.value
+    );
+    setSelectedFriends(values);
+  };
+
+  const handleSave = () => {
+    if (!description || !amount || selectedFriends.length === 0) return;
+
+    const totalAmount = Number(amount);
+
     const bill = {
       id: existing?.id || Date.now().toString(),
-      description: desc,
-      amount,
-      friendIds: ids,
-      splitAmount: split,
+      description,
+      amount: totalAmount,
+      friendIds: selectedFriends,
+      splitAmount: Number(
+        (totalAmount / selectedFriends.length).toFixed(2)
+      ),
     };
 
-    existing?.id ? dispatch(editBill(bill)) : dispatch(addBill(bill));
+    if (existing?.id) {
+      dispatch(editBill(bill));
+    } else {
+      dispatch(addBill(bill));
+    }
+
     close();
   };
 
   return (
-    <>
-      <input value={desc} onChange={e => setDesc(e.target.value)} />
-      <input type="number" value={amount} onChange={e => setAmount(+e.target.value)} />
+    <div className="bill-form">
+      {/* Description */}
+      <div className="form-group">
+        <label>Expense Description</label>
+        <input
+          type="text"
+          placeholder="Expense description..."
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+        />
+      </div>
 
-      {friends.map(f => (
-        <label key={f.id}>
+      {/* Amount (NO SPINNER) */}
+      <div className="form-group">
+        <label>Total Amount</label>
+        <div className="amount-input">
+          <span>₹</span>
           <input
-            type="checkbox"
-            checked={ids.includes(f.id)}
-            onChange={() => toggle(f.id)}
+            type="text"
+            inputMode="numeric"
+            placeholder="Amount"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
           />
-          {f.name}
-        </label>
-      ))}
+        </div>
+      </div>
 
-      <button onClick={save}>Save</button>
-    </>
+     {/* Friends */}
+     <div className="form-group">
+        <label>Friends</label>
+        <div className="friends-checkbox-grid">
+          {friends.map(f => (
+            <label key={f.id} className="checkbox-item">
+              <input
+                type="checkbox"
+                checked={selectedFriends.includes(f.id)}
+                onChange={() => toggleFriend(f.id)}
+              />
+              {f.name}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="modal-actions">
+        <button className="secondary-btn" onClick={close}>
+          Cancel
+        </button>
+        <button className="primary-btn" onClick={handleSave}>
+          {existing?.id ? 'Update Bill' : 'Save Bill'}
+        </button>
+      </div>
+    </div>
   );
 };
 

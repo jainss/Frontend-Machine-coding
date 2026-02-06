@@ -8,13 +8,11 @@ body {
   background: #f4f6f8;
 }
 
-/* Root layout */
 .app-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Right side content */
 .content {
   flex: 1;
   background: linear-gradient(180deg, #eef2f7 0%, #ffffff 40%);

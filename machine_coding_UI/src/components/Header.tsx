@@ -2,16 +2,16 @@ import './components.css';
 
 interface HeaderProps {
   title: string;
-  actionLabel: string;
-  onAction: () => void;
+  actionTypeName: string;
+  onActionFun: () => void;
 }
 
-const Header = ({ title, actionLabel, onAction }: HeaderProps) => {
+const Header = ({ title, actionTypeName, onActionFun }: HeaderProps) => {
   return (
     <div className="header">
       <h1>{title}</h1>
-      <button className="primary-btn" onClick={onAction}>
-        + {actionLabel}
+      <button className="primary-btn" onClick={onActionFun}>
+        + {actionTypeName}
       </button>
     </div>
   );

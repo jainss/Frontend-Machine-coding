@@ -1,4 +1,4 @@
-/* Root App layout */
+
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-/* Right-side content area */
+
 .content {
   flex: 1;
   background: linear-gradient(
@@ -19,14 +19,14 @@
   overflow-y: auto;
 }
 
-/* Common page wrapper */
+
 .page {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Headings consistency */
+
 .page h1 {
   margin: 0;
   font-size: 34px;
@@ -34,12 +34,11 @@
   color: #2c3a47;
 }
 
-/* Buttons reset (base) */
+
 button {
   font-family: inherit;
 }
 
-/* Utility spacing */
 .mt-20 {
   margin-top: 20px;
 }
@@ -48,7 +47,6 @@ button {
   margin-bottom: 20px;
 }
 
-/* Responsive tweaks */
 @media (max-width: 768px) {
   .content {
     padding: 20px;

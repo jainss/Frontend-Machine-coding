@@ -1,20 +1,20 @@
 import './components.css';
 
-const Sidebar = ({ page, setPage }: any) => {
+const Sidebar = ({ pages, setPages }: any) => {
   return (
     <aside className="sidebar">
       <h2 className="logo">Split Manager</h2>
 
       <button
-        className={page === 'friends' ? 'active' : ''}
-        onClick={() => setPage('friends')}
+        className={pages === 'friends' ? 'active' : ''}
+        onClick={() => setPages('friends')}
       >
         Friends
       </button>
 
       <button
-        className={page === 'bills' ? 'active' : ''}
-        onClick={() => setPage('bills')}
+        className={pages === 'bills' ? 'active' : ''}
+        onClick={() => setPages('bills')}
       >
         Bills
       </button>
